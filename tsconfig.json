@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "esnext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "outDir": "./dist",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    // "declarationDir": "types",
+    // Where to place the .d.ts files
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "removeComments": true,
+    "declaration": true,
+    "declarationMap": true,
+    "jsx": "react-jsx"
+    // "react", this will use React.createElement()
+    // "react-jsx", this will use _jsx("div", { children: "text..." })
+  },
+  "exclude": ["node_modules"],
+  "include": ["./src/**/*", "./index.d.ts", "./tests/**/*"]
+}
