@@ -225,6 +225,11 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
             scrollableHorizontal > 0 ? scrollLeft / scrollableHorizontal : 0;
 
         this.setState({ thumbTopRatio, thumbLeftRatio });
+
+        if (this.state.opacity === 0) {
+            this.handleMouseEnterParent();
+            this.handleMouseLeaveParent();
+        }
     };
 
     // ─── Mutation Handler ───────────────────────────────────────────────────────

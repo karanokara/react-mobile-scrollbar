@@ -14,8 +14,10 @@ function App() {
   const [autoHide, setAutoHide] = useState(true);
   const [trackSize, setTrackSize] = useState(14);
   const [trackInset, setTrackInset] = useState(2);
+  const [trackPadding, setTrackPadding] = useState(5);
   const [trackColor, setTrackColor] = useState("#0000000d");
   const [thumbColor, setThumbColor] = useState("#aaaaaa");
+  const [thumbHoverColor, setThumbHoverColor] = useState("#888");
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -97,24 +99,44 @@ function App() {
                 />
               </div>
 
+              <div style={{ marginTop: "0.25rem" }}>
+                <span style={{ marginRight: "0.25rem" }}>Track padding:</span>
+                <InputNumber
+                  id="track-inset-input"
+                  wrapperStyle={{ width: "100px" }}
+                  value={trackPadding}
+                  min={0}
+                  max={100}
+                  step={1}
+                  precision={0}
+                  placeholder="Enter a number"
+                  onChange={(val) => setTrackPadding(val!)}
+                />
+              </div>
+
             </div>
 
-            <div style={{ marginLeft: "0.5rem", display: "flex", flexDirection: "column" }}>
-
+            <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
               <div >
-                <span style={{ marginRight: "0.25rem" }}>Track color:</span>
+                <span style={{ marginRight: "0.25rem", fontSize: "12px" }}>Track color:</span>
                 <HexAlphaColorPicker color={trackColor} onChange={setTrackColor} />
               </div>
-
             </div>
 
-            <div style={{ marginLeft: "0.5rem", display: "flex", flexDirection: "column" }}>
+            <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
               <div >
-                <span style={{ marginRight: "0.25rem" }}>Thumb color:</span>
+                <span style={{ marginRight: "0.25rem", fontSize: "12px" }}>Thumb color:</span>
                 <HexAlphaColorPicker color={thumbColor} onChange={setThumbColor} />
               </div>
-
             </div>
+
+            <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
+              <div >
+                <span style={{ marginRight: "0.25rem", fontSize: "12px" }}>Thumb hover color:</span>
+                <HexAlphaColorPicker color={thumbHoverColor} onChange={setThumbHoverColor} />
+              </div>
+            </div>
+
             <div></div>
           </div>
 
@@ -247,13 +269,13 @@ function App() {
               styles={{
                 track: {
                   backgroundColor: trackColor,
-                  padding: "5px"
+                  padding: trackPadding + "px"
                 },
                 thumb: {
                   backgroundColor: thumbColor,
                   borderRadius: "50px"
                 },
-                thumbHover: { backgroundColor: "#888" },
+                thumbHover: { backgroundColor: thumbHoverColor },
               }}
               animation={{
                 fadeOutDelay: 3000,
