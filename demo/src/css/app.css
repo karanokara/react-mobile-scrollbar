@@ -85,7 +85,7 @@ input {
   }
 }
 
-#next-steps {
+#app-wrapper {
   display: flex;
   /* border-top: 1px solid var(--border); */
   text-align: left;
@@ -135,7 +135,7 @@ input {
   }
 }
 
-#next-steps ul {
+#app-wrapper ul {
   list-style: none;
   padding: 0;
   display: flex;
@@ -219,4 +219,9 @@ input {
     right: 0;
     border-right-color: var(--border);
   }
+}
+
+#app-wrapper .react-colorful {
+  height: 160px;
+  width: 160px;
 }

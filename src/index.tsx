@@ -32,6 +32,7 @@ export interface MyScrollbarProps {
     /** track width for vertical bar (default: 8px) */
     trackSize?: number;
     autoHide?: boolean;
+    trackInset?: number;
 }
 
 interface MyScrollbarState {
@@ -58,6 +59,8 @@ interface MyScrollbarState {
 
 export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScrollbarState> {
     private defaultClassName = packageJson.name;
+
+    private thumbActiveClassName = "scrollbar-thumb-active";
     static defaultProps: Partial<MyScrollbarProps> = {
         vertical: true,
         horizontal: true,
@@ -113,8 +116,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
     // ─── Native Scrollbar Hide/Restore ─────────────────────────────────────────
 
     private originalOverflow = "";
-    private originalScrollbarWidth = "";
-    private originalScrollbarHeight = "";
+
     private styleTag: HTMLStyleElement | null = null;
 
     private hideNativeScrollbar(parent: HTMLElement) {
@@ -349,8 +351,8 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
         this.dragStartY = e.clientY;
         this.dragStartScrollTop = parent.scrollTop;
 
-        document.body.style.userSelect = "none";
-        document.body.style.cursor = "grabbing";
+        document.body.classList.add(this.thumbActiveClassName);
+        this.forceUpdate();
     };
 
     private handleHorizontalThumbMouseDown = (
@@ -366,8 +368,8 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
         this.dragStartX = e.clientX;
         this.dragStartScrollLeft = parent.scrollLeft;
 
-        document.body.style.userSelect = "none";
-        document.body.style.cursor = "grabbing";
+        document.body.classList.add(this.thumbActiveClassName);
+        this.forceUpdate();
     };
 
     private handleMouseMove = (e: MouseEvent) => {
@@ -408,8 +410,8 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
         if (this.isDraggingVertical || this.isDraggingHorizontal) {
             this.isDraggingVertical = false;
             this.isDraggingHorizontal = false;
-            document.body.style.userSelect = "";
-            document.body.style.cursor = "";
+            document.body.classList.remove(this.thumbActiveClassName);
+            this.forceUpdate();
         }
     };
 
@@ -522,6 +524,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
             trackSize,
             vertical = true,
             horizontal = true,
+            trackInset = 0,
         } = this.props;
 
         const {
@@ -552,7 +555,6 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
 
         const defaultThumbStyle: React.CSSProperties = {
             backgroundColor: "#aaaaaa",
-            borderRadius: "4px",
         };
 
         const defaultThumbHoverStyle: React.CSSProperties = {
@@ -593,7 +595,6 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
             width: `${trackSize}px`,
             height: showHorizontal ? `calc(100% - ${trackSize}px)` : "100%",
             display: showVertical && vertical ? "block" : "none",
-            borderRadius: "4px",
             zIndex: 999,
             boxSizing: "border-box",
             ...trackStyle,
@@ -608,10 +609,8 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
             left: 0,
             height: thumbHeight,
             top: thumbTop,
-            borderRadius: "4px",
-            cursor: "grab",
             boxSizing: "border-box",
-            ...(verticalThumbHovered
+            ...((verticalThumbHovered || this.isDraggingVertical)
                 ? { ...thumbBaseStyle, ...thumbHoverStyle }
                 : thumbBaseStyle),
         };
@@ -625,7 +624,6 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
             height: `${trackSize}px`,
             width: showVertical ? `calc(100% - ${trackSize}px)` : "100%",
             display: showHorizontal && horizontal ? "block" : "none",
-            borderRadius: "4px",
             zIndex: 999,
             boxSizing: "border-box",
             ...trackStyle,
@@ -640,10 +638,8 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
             top: 0,
             width: thumbWidth,
             left: thumbLeft,
-            borderRadius: "4px",
-            cursor: "grab",
             boxSizing: "border-box",
-            ...(horizontalThumbHovered
+            ...((horizontalThumbHovered || this.isDraggingHorizontal)
                 ? { ...thumbBaseStyle, ...thumbHoverStyle }
                 : thumbBaseStyle),
         };
@@ -655,7 +651,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
                     <div className={cn(this.defaultClassName, "vertical")} style={{ ...containerStyle, ...verticalTrackStyle }}>
                         <div
                             ref={this.verticalTrackRef}
-                            style={{ position: "absolute", inset: 0 }}
+                            style={{ position: "absolute", inset: trackInset + "px" }}
                             onClick={this.handleVerticalTrackClick}
                         >
                             <div
@@ -674,7 +670,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
                     <div className={cn(this.defaultClassName, "horizontal")} style={{ ...containerStyle, ...horizontalTrackStyle }}>
                         <div
                             ref={this.horizontalTrackRef}
-                            style={{ position: "absolute", inset: 0 }}
+                            style={{ position: "absolute", inset: trackInset + "px" }}
                             onClick={this.handleHorizontalTrackClick}
                         >
                             <div
