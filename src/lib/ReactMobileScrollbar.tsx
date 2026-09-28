@@ -1,7 +1,7 @@
 import React, { createRef } from "react";
-import "./css/index.css";
-import packageJson from "../package.json";
-import { clamp, cn, isTouchDevice } from "./lib/Helper";
+import "../css/index.css";
+import packageJson from "../../package.json";
+import { clamp, cn, isTouchDevice } from "./Helper";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface ScrollbarStyles {
@@ -19,8 +19,8 @@ export interface ScrollbarAnimationOptions {
     fadeOutTransition?: string;
 }
 
-export interface MyScrollbarProps {
-    parentRef: React.RefObject<HTMLElement>;
+export interface ReactMobileScrollbarProps {
+    scrollWrapperRef: React.RefObject<HTMLElement>;
     /** enable vertical scrollbar (default: true) */
     vertical?: boolean;
     /** enable horizontal scrollbar (default: true) */
@@ -35,7 +35,7 @@ export interface MyScrollbarProps {
     trackInset?: number;
 }
 
-interface MyScrollbarState {
+interface ReactMobileScrollbarState {
     // Vertical
     showVertical: boolean;
     thumbHeightRatio: number; // thumb height / track height
@@ -57,11 +57,11 @@ interface MyScrollbarState {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScrollbarState> {
+export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarProps, ReactMobileScrollbarState> {
     private defaultClassName = packageJson.name;
 
     private thumbActiveClassName = "scrollbar-thumb-active";
-    static defaultProps: Partial<MyScrollbarProps> = {
+    static defaultProps: Partial<ReactMobileScrollbarProps> = {
         vertical: true,
         horizontal: true,
         trackSize: 8,
@@ -74,7 +74,9 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
     };
 
     // Refs
+    private verticalTrackWrapperRef = createRef<HTMLDivElement>();
     private verticalTrackRef = createRef<HTMLDivElement>();
+    private horizontalTrackWrapperRef = createRef<HTMLDivElement>();
     private horizontalTrackRef = createRef<HTMLDivElement>();
     private verticalThumbRef = createRef<HTMLDivElement>();
     private horizontalThumbRef = createRef<HTMLDivElement>();
@@ -95,7 +97,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
     // Touch device flag
     private isTouch = false;
 
-    constructor(props: MyScrollbarProps) {
+    constructor(props: ReactMobileScrollbarProps) {
         super(props);
         this.state = {
             showVertical: false,
@@ -125,15 +127,15 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
 
         // Make parent scrollable but hide native scrollbar via CSS trick
         // We inject a style that hides scrollbars for this element specifically
-        const uid = `myscrollbar-${Math.random().toString(36).slice(2, 9)}`;
-        parent.setAttribute("data-myscrollbar", uid);
+        const uid = Math.random().toString(36).slice(2, 9);
+        parent.setAttribute(`data-${this.defaultClassName}`, uid);
 
         const style = document.createElement("style");
         style.textContent = `
-      \[data-myscrollbar="${uid}"\]::-webkit-scrollbar {
+      \[data-${this.defaultClassName}="${uid}"\]::-webkit-scrollbar {
         display: none;
       }
-      \[data-myscrollbar="${uid}"\] {
+      \[data-${this.defaultClassName}="${uid}"\] {
         scrollbar-width: none;
         -ms-overflow-style: none;
         overflow: auto !important;
@@ -144,7 +146,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
     }
 
     private restoreNativeScrollbar(parent: HTMLElement) {
-        parent.removeAttribute("data-myscrollbar");
+        parent.removeAttribute(`data-${this.defaultClassName}`);
         if (this.styleTag) {
             document.head.removeChild(this.styleTag);
             this.styleTag = null;
@@ -154,13 +156,13 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
 
     // ─── Helpers ───────────────────────────────────────────────────────────────
 
-    private getParent(): HTMLElement | null {
-        return this.props.parentRef.current;
+    private getScrollWrapper(): HTMLElement | null {
+        return this.props.scrollWrapperRef.current;
     }
 
     private recalculate = () => {
-        const parent = this.getParent();
-        if (!parent) return;
+        const scrollWrapper = this.getScrollWrapper();
+        if (!scrollWrapper) return;
 
         const {
             scrollHeight,
@@ -169,7 +171,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
             clientWidth,
             scrollTop,
             scrollLeft,
-        } = parent;
+        } = scrollWrapper;
 
         const { vertical = true, horizontal = true } = this.props;
 
@@ -204,8 +206,8 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
     // ─── Scroll Handler ─────────────────────────────────────────────────────────
 
     private handleScroll = () => {
-        const parent = this.getParent();
-        if (!parent) return;
+        const scrollWrapper = this.getScrollWrapper();
+        if (!scrollWrapper) return;
 
         const {
             scrollHeight,
@@ -214,7 +216,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
             clientWidth,
             scrollTop,
             scrollLeft,
-        } = parent;
+        } = scrollWrapper;
 
         const scrollableVertical = scrollHeight - clientHeight;
         const thumbTopRatio =
@@ -226,6 +228,8 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
 
         this.setState({ thumbTopRatio, thumbLeftRatio });
 
+        console.log("handleScroll", thumbTopRatio, thumbLeftRatio);
+
         if (this.state.opacity === 0) {
             this.handleMouseEnterParent();
             this.handleMouseLeaveParent();
@@ -236,7 +240,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
 
     private handleMutation = (mutations: MutationRecord[]) => {
         // Re-observe any new children
-        const parent = this.getParent();
+        const parent = this.getScrollWrapper();
         if (!parent) return;
 
         mutations.forEach((mutation) => {
@@ -278,6 +282,8 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
         }
         else {
             this.setState({ opacity: 1 });
+            if (this.fadeOutTimer)
+                clearTimeout(this.fadeOutTimer);
         }
     };
 
@@ -291,7 +297,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
         // Prevent if clicking on thumb
         if (e.target === this.verticalThumbRef.current) return;
 
-        const parent = this.getParent();
+        const parent = this.getScrollWrapper();
         const track = this.verticalTrackRef.current;
         if (!parent || !track) return;
 
@@ -319,7 +325,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
     ) => {
         if (e.target === this.horizontalThumbRef.current) return;
 
-        const parent = this.getParent();
+        const parent = this.getScrollWrapper();
         const track = this.horizontalTrackRef.current;
         if (!parent || !track) return;
 
@@ -349,7 +355,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
         e.preventDefault();
         e.stopPropagation();
 
-        const parent = this.getParent();
+        const parent = this.getScrollWrapper();
         if (!parent) return;
 
         this.isDraggingVertical = true;
@@ -366,7 +372,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
         e.preventDefault();
         e.stopPropagation();
 
-        const parent = this.getParent();
+        const parent = this.getScrollWrapper();
         if (!parent) return;
 
         this.isDraggingHorizontal = true;
@@ -378,7 +384,7 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
     };
 
     private handleMouseMove = (e: MouseEvent) => {
-        const parent = this.getParent();
+        const parent = this.getScrollWrapper();
         if (!parent) return;
 
         if (this.isDraggingVertical) {
@@ -438,25 +444,15 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
         this.setState({ horizontalThumbHovered: false });
     };
 
-    // ─── Lifecycle ─────────────────────────────────────────────────────────────
-
-    componentDidUpdate(prevProps: MyScrollbarProps) {
-        // If parentRef changed
-        if (prevProps.parentRef !== this.props.parentRef) {
-            this.recalculate();
-        }
-
-        if (prevProps.autoHide !== this.props.autoHide) {
-            this.handleMouseLeaveParent();
-        }
-    }
-
-    componentDidMount() {
+    private setup() {
         this.isTouch = isTouchDevice();
         if (this.isTouch) return; // Use native scrollbar on touch devices
 
-        const parent = this.getParent();
-        if (!parent) return;
+        const parent = this.getScrollWrapper();
+        if (!parent) {
+            console.warn(this.defaultClassName + " couldn't find scroll wrapper element");
+            return;
+        }
 
         // Hide native scrollbar
         this.hideNativeScrollbar(parent);
@@ -496,10 +492,10 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
         window.addEventListener("mouseup", this.handleMouseUp);
     }
 
-    componentWillUnmount() {
+    private dispose() {
         if (this.isTouch) return;
 
-        const parent = this.getParent();
+        const parent = this.getScrollWrapper();
         if (parent) {
             parent.removeEventListener("scroll", this.handleScroll);
             parent.removeEventListener("mouseenter", this.handleMouseEnterParent);
@@ -514,6 +510,36 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
         window.removeEventListener("mouseup", this.handleMouseUp);
 
         if (this.fadeOutTimer) clearTimeout(this.fadeOutTimer);
+    }
+
+    // ─── Lifecycle ─────────────────────────────────────────────────────────────
+
+    componentDidUpdate(prevProps: ReactMobileScrollbarProps) {
+        // If parentRef changed
+        if (prevProps.scrollWrapperRef !== this.props.scrollWrapperRef) {
+            this.recalculate();
+        }
+
+        if (prevProps.autoHide !== this.props.autoHide) {
+            this.handleMouseLeaveParent();
+        }
+
+        // wrapper mounted?
+        if (prevProps.scrollWrapperRef.current !== this.props.scrollWrapperRef.current) {
+            this.dispose();
+            this.setup();
+        }
+    }
+
+    componentDidMount() {
+        const parent = this.getScrollWrapper();
+        if (parent) {
+            this.setup();
+        }
+    }
+
+    componentWillUnmount() {
+        this.dispose();
     }
 
 
@@ -588,7 +614,10 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
         const containerStyle: React.CSSProperties = {
             opacity,
             transition: currentTransition,
-            pointerEvents: opacity === 0 ? "none" : "auto",
+            /* Ensure touch gestures propagate */
+            touchAction: "auto",
+
+            pointerEvents: "auto"//none" : "auto",
         };
 
         // ── Vertical scrollbar ──
@@ -653,7 +682,11 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
             <>
                 {/* Vertical Scrollbar */}
                 {vertical && (
-                    <div className={cn(this.defaultClassName, "vertical")} style={{ ...containerStyle, ...verticalTrackStyle }}>
+                    <div
+                        ref={this.verticalTrackWrapperRef}
+                        className={cn(this.defaultClassName, "vertical")}
+                        style={{ ...containerStyle, ...verticalTrackStyle }}
+                    >
                         <div
                             ref={this.verticalTrackRef}
                             style={{ position: "absolute", inset: trackInset + "px" }}
@@ -672,7 +705,11 @@ export default class MyScrollbar extends React.Component<MyScrollbarProps, MyScr
 
                 {/* Horizontal Scrollbar */}
                 {horizontal && (
-                    <div className={cn(this.defaultClassName, "horizontal")} style={{ ...containerStyle, ...horizontalTrackStyle }}>
+                    <div
+                        ref={this.horizontalTrackWrapperRef}
+                        className={cn(this.defaultClassName, "horizontal")}
+                        style={{ ...containerStyle, ...horizontalTrackStyle }}
+                    >
                         <div
                             ref={this.horizontalTrackRef}
                             style={{ position: "absolute", inset: trackInset + "px" }}

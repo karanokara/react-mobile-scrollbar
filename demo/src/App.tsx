@@ -1,25 +1,32 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import reactLogo from './assets/react.svg';
 import viteLogo from './assets/vite.svg';
 import heroImg from './assets/hero.png';
 import './css/app.css';
 import { Global } from "./Global";
-import MyScrollbar from "../../src/index";
+import { ReactMobileScrollbar } from "../../src/index";
 import { InputNumber } from "./InputNumber";
 import { HexAlphaColorPicker } from "react-colorful";
 
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [autoHide, setAutoHide] = useState(true);
-  const [trackSize, setTrackSize] = useState(14);
-  const [trackInset, setTrackInset] = useState(2);
-  const [trackPadding, setTrackPadding] = useState(5);
-  const [trackColor, setTrackColor] = useState("#0000000d");
-  const [thumbColor, setThumbColor] = useState("#aaaaaa");
-  const [thumbHoverColor, setThumbHoverColor] = useState("#888");
+  const originalSetting = {
+    autoHide: true,
+    trackSize: 14,
+    trackInset: 2,
+    trackPadding: 5,
+    trackColor: "#0000000d",
+    thumbColor: "#bbb5d8",
+    thumbHoverColor: "#948fd0",
+  };
+  const [setting, setSetting] = useState(originalSetting);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    if (wrapperRef.current) setIsMounted(true);
+  }, [wrapperRef.current]);
 
   return (
     <div id="app-wrapper">
@@ -33,21 +40,23 @@ function App() {
             <img src={reactLogo} className="framework" alt="React logo" />
             <img src={viteLogo} className="vite" alt="Vite logo" />
           </div>
-          <div>
-            <h1>{Global.title}</h1>
-            <p>
+          <div style={{ textAlign: "center" }}>
+            <h1 style={{ margin: "0.5rem 0" }}>{Global.title}</h1>
+
+            <div style={{ fontSize: "14px" }}>Version: {Global.packageVersion}</div>
+
+            <p style={{ margin: "0.5rem 0" }}>
               <b>Install:</b> <code>npm install {Global.packageName}</code>
             </p>
           </div>
-          <div>Version: {Global.packageVersion}</div>
 
-          <button
+          {/* <button
             type="button"
             className="counter"
             onClick={() => setCount((count) => count + 1)}
           >
             Count is {count}
-          </button>
+          </button> */}
         </section>
         <div className="ticks" />
         <div id="spacer" />
@@ -67,20 +76,20 @@ function App() {
           <div style={{ display: "flex" }}>
             <div style={{ display: "flex", flexDirection: "column" }}>
 
-              <div>Auto hide scrollbar <input type="checkbox" checked={autoHide} onChange={(e) => setAutoHide(e.target.checked)} /> </div>
+              <div>Auto hide scrollbar <input type="checkbox" checked={setting.autoHide} onChange={(e) => setSetting({ ...setting, autoHide: e.target.checked })} /> </div>
 
               <div style={{ marginTop: "0.25rem" }}>
                 <span style={{ marginRight: "0.25rem" }}>Track size:</span>
                 <InputNumber
                   id="track-size-input"
                   wrapperStyle={{ width: "100px" }}
-                  value={trackSize}
+                  value={setting.trackSize}
                   min={0}
                   max={100}
                   step={1}
                   precision={0}
                   placeholder="Enter a number"
-                  onChange={(val) => setTrackSize(val!)}
+                  onChange={(val) => setSetting({ ...setting, trackSize: val! })}
                 />
               </div>
 
@@ -89,13 +98,13 @@ function App() {
                 <InputNumber
                   id="track-inset-input"
                   wrapperStyle={{ width: "100px" }}
-                  value={trackInset}
+                  value={setting.trackInset}
                   min={0}
                   max={100}
                   step={1}
                   precision={0}
                   placeholder="Enter a number"
-                  onChange={(val) => setTrackInset(val!)}
+                  onChange={(val) => setSetting({ ...setting, trackInset: val! })}
                 />
               </div>
 
@@ -104,13 +113,13 @@ function App() {
                 <InputNumber
                   id="track-inset-input"
                   wrapperStyle={{ width: "100px" }}
-                  value={trackPadding}
+                  value={setting.trackPadding}
                   min={0}
                   max={100}
                   step={1}
                   precision={0}
                   placeholder="Enter a number"
-                  onChange={(val) => setTrackPadding(val!)}
+                  onChange={(val) => setSetting({ ...setting, trackPadding: val! })}
                 />
               </div>
 
@@ -119,27 +128,34 @@ function App() {
             <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
               <div >
                 <span style={{ marginRight: "0.25rem", fontSize: "12px" }}>Track color:</span>
-                <HexAlphaColorPicker color={trackColor} onChange={setTrackColor} />
+                <HexAlphaColorPicker color={setting.trackColor} onChange={(c) => setSetting({ ...setting, trackColor: c })} />
               </div>
             </div>
 
             <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
               <div >
                 <span style={{ marginRight: "0.25rem", fontSize: "12px" }}>Thumb color:</span>
-                <HexAlphaColorPicker color={thumbColor} onChange={setThumbColor} />
+                <HexAlphaColorPicker color={setting.thumbColor} onChange={(c) => setSetting({ ...setting, thumbColor: c })} />
               </div>
             </div>
 
             <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
               <div >
                 <span style={{ marginRight: "0.25rem", fontSize: "12px" }}>Thumb hover color:</span>
-                <HexAlphaColorPicker color={thumbHoverColor} onChange={setThumbHoverColor} />
+                <HexAlphaColorPicker color={setting.thumbHoverColor} onChange={(c) => setSetting({ ...setting, thumbHoverColor: c })} />
               </div>
             </div>
 
             <div></div>
           </div>
 
+          <div>
+            <button
+              type="button"
+              className="counter"
+              onClick={() => setSetting(originalSetting)}
+            >Reset</button>
+          </div>
         </div>
 
         <section>
@@ -256,33 +272,33 @@ function App() {
                 <p>Donec auctor vitae ex id semper. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque maximus tristique ipsum, vitae sollicitudin enim blandit a. In tempor pharetra diam, eget rhoncus ante egestas vel. Maecenas sit amet finibus nibh, sed pulvinar augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Nulla sit amet volutpat nisl, ut bibendum leo. Vestibulum ante justo, porta sed elit ut, luctus dictum ipsum.</p>
               </div>
 
-            </div>
 
-            {/* Scrollbar — must be LAST child so it renders on top */}
-            <MyScrollbar
-              parentRef={wrapperRef}
-              vertical={true}
-              horizontal={true}
-              autoHide={autoHide}
-              trackSize={trackSize}
-              trackInset={trackInset}
-              styles={{
-                track: {
-                  backgroundColor: trackColor,
-                  padding: trackPadding + "px"
-                },
-                thumb: {
-                  backgroundColor: thumbColor,
-                  borderRadius: "50px"
-                },
-                thumbHover: { backgroundColor: thumbHoverColor },
-              }}
-              animation={{
-                fadeOutDelay: 3000,
-                fadeInTransition: "opacity 0.3s ease",
-                fadeOutTransition: "opacity 0.6s ease",
-              }}
-            />
+              {/* Scrollbar — must be LAST child so it renders on top */}
+              {wrapperRef.current && <ReactMobileScrollbar
+                scrollWrapperRef={wrapperRef}
+                vertical={true}
+                horizontal={true}
+                autoHide={setting.autoHide}
+                trackSize={setting.trackSize}
+                trackInset={setting.trackInset}
+                styles={{
+                  track: {
+                    backgroundColor: setting.trackColor,
+                    padding: setting.trackPadding + "px"
+                  },
+                  thumb: {
+                    backgroundColor: setting.thumbColor,
+                    borderRadius: "50px"
+                  },
+                  thumbHover: { backgroundColor: setting.thumbHoverColor },
+                }}
+                animation={{
+                  fadeOutDelay: 3000,
+                  fadeInTransition: "opacity 0.3s ease",
+                  fadeOutTransition: "opacity 0.6s ease",
+                }}
+              />}
+            </div>
 
           </div>
         </section>
