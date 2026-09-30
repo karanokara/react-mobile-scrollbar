@@ -384,8 +384,8 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
     };
 
     private handleMouseMove = (e: MouseEvent) => {
-        const parent = this.getScrollWrapper();
-        if (!parent) return;
+        const scrollWrapper = this.getScrollWrapper();
+        if (!scrollWrapper) return;
 
         if (this.isDraggingVertical) {
             const track = this.verticalTrackRef.current;
@@ -393,13 +393,13 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 
             const deltaY = e.clientY - this.dragStartY;
             const trackHeight = track.clientHeight;
-            const { scrollHeight, clientHeight } = parent;
+            const { scrollHeight, clientHeight } = scrollWrapper;
 
             // Convert pixel delta in track space to scroll delta
             const scrollRatio = (scrollHeight - clientHeight) / (trackHeight * (1 - this.state.thumbHeightRatio));
             const newScrollTop = this.dragStartScrollTop + deltaY * scrollRatio;
 
-            parent.scrollTop = clamp(newScrollTop, 0, scrollHeight - clientHeight);
+            scrollWrapper.scrollTop = clamp(newScrollTop, 0, scrollHeight - clientHeight);
         }
 
         if (this.isDraggingHorizontal) {
@@ -408,12 +408,12 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 
             const deltaX = e.clientX - this.dragStartX;
             const trackWidth = track.clientWidth;
-            const { scrollWidth, clientWidth } = parent;
+            const { scrollWidth, clientWidth } = scrollWrapper;
 
             const scrollRatio = (scrollWidth - clientWidth) / (trackWidth * (1 - this.state.thumbWidthRatio));
             const newScrollLeft = this.dragStartScrollLeft + deltaX * scrollRatio;
 
-            parent.scrollLeft = clamp(newScrollLeft, 0, scrollWidth - clientWidth);
+            scrollWrapper.scrollLeft = clamp(newScrollLeft, 0, scrollWidth - clientWidth);
         }
     };
 
@@ -424,6 +424,29 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
             document.body.classList.remove(this.thumbActiveClassName);
             this.forceUpdate();
         }
+    };
+
+    /**
+     * when hover on scrollbar then use wheel
+     * @param event 
+     */
+    private handleWheel = (event: WheelEvent) => {
+        // Prevent the hovered element (or window) from scrolling
+        event.preventDefault();
+
+        const scrollWrapper = this.getScrollWrapper();
+        if (!scrollWrapper) {
+            console.warn(this.defaultClassName + " couldn't find scroll wrapper element");
+            return;
+        }
+        // Pass the scroll delta directly to the target element
+        let resultTop = scrollWrapper.scrollTop + event.deltaY;
+        let resultLeft = scrollWrapper.scrollLeft += event.deltaX;
+        scrollWrapper.scrollTo({
+            top: resultTop,
+            left: resultLeft,
+            behavior: "auto",   // if using smooth, and scroll wheel fast, content will scroll slowly
+        });
     };
 
     // ─── Thumb Hover ────────────────────────────────────────────────────────────
@@ -448,31 +471,32 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         this.isTouch = isTouchDevice();
         if (this.isTouch) return; // Use native scrollbar on touch devices
 
-        const parent = this.getScrollWrapper();
-        if (!parent) {
+        const scrollWrapper = this.getScrollWrapper();
+        if (!scrollWrapper) {
             console.warn(this.defaultClassName + " couldn't find scroll wrapper element");
             return;
         }
 
         // Hide native scrollbar
-        this.hideNativeScrollbar(parent);
+        this.hideNativeScrollbar(scrollWrapper);
 
         // Initial calculation
         this.recalculate();
 
         // Attach scroll listener
-        parent.addEventListener("scroll", this.handleScroll, { passive: true });
+        // passive=ture, the callback fn promise to NOT call preventDefault
+        scrollWrapper.addEventListener("scroll", this.handleScroll, { passive: true });
 
         // Mouse enter/leave on parent
-        parent.addEventListener("mouseenter", this.handleMouseEnterParent);
-        parent.addEventListener("mouseleave", this.handleMouseLeaveParent);
+        scrollWrapper.addEventListener("mouseenter", this.handleMouseEnterParent);
+        scrollWrapper.addEventListener("mouseleave", this.handleMouseLeaveParent);
 
         // ResizeObserver for parent and content
         this.resizeObserver = new ResizeObserver(this.recalculate);
-        this.resizeObserver.observe(parent);
+        this.resizeObserver.observe(scrollWrapper);
 
         // Observe children for content changes
-        Array.from(parent.children).forEach((child) => {
+        Array.from(scrollWrapper.children).forEach((child) => {
             if (child !== this.verticalTrackRef.current &&
                 child !== this.horizontalTrackRef.current) {
                 this.resizeObserver?.observe(child);
@@ -481,7 +505,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 
         // MutationObserver for DOM changes inside parent
         this.mutationObserver = new MutationObserver(this.handleMutation);
-        this.mutationObserver.observe(parent, {
+        this.mutationObserver.observe(scrollWrapper, {
             childList: true,
             subtree: true,
             characterData: true,
@@ -490,6 +514,11 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         // Global mouse move/up for drag
         window.addEventListener("mousemove", this.handleMouseMove);
         window.addEventListener("mouseup", this.handleMouseUp);
+
+
+        // Note: { passive: false } is required to allow event.preventDefault()
+        this.verticalTrackWrapperRef.current?.addEventListener('wheel', this.handleWheel, { passive: false });
+        this.horizontalTrackWrapperRef.current?.addEventListener('wheel', this.handleWheel, { passive: false });
     }
 
     private dispose() {
@@ -508,6 +537,9 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 
         window.removeEventListener("mousemove", this.handleMouseMove);
         window.removeEventListener("mouseup", this.handleMouseUp);
+
+        this.verticalTrackWrapperRef.current?.removeEventListener('wheel', this.handleWheel);
+        this.horizontalTrackWrapperRef.current?.removeEventListener('wheel', this.handleWheel);
 
         if (this.fadeOutTimer) clearTimeout(this.fadeOutTimer);
     }
@@ -616,8 +648,8 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
             transition: currentTransition,
             /* Ensure touch gestures propagate */
             touchAction: "auto",
-
-            pointerEvents: "auto"//none" : "auto",
+            /* Accept clicks when showing */
+            pointerEvents: opacity === 0 ? "none" : "auto",
         };
 
         // ── Vertical scrollbar ──
