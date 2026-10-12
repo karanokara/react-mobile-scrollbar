@@ -73,7 +73,7 @@ function App() {
             >Reset</button>
           </div>
 
-          <div style={{ display: "flex" }}>
+          <div style={{ display: "flex", fontSize: "12px" }}>
             <div style={{ display: "flex", flexDirection: "column" }}>
 
               <div>Auto hide scrollbar <input type="checkbox" checked={setting.autoHide} onChange={(e) => setSetting({ ...setting, autoHide: e.target.checked })} /> </div>
@@ -128,28 +128,28 @@ function App() {
 
             <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
               <div >
-                <span style={{ marginRight: "0.25rem", fontSize: "12px" }}>Track color:</span>
+                <span style={{ marginRight: "0.25rem", }}>Track color:</span>
                 <HexAlphaColorPicker color={setting.trackColor} onChange={(c) => setSetting({ ...setting, trackColor: c })} />
               </div>
             </div>
 
             <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
               <div >
-                <span style={{ marginRight: "0.25rem", fontSize: "12px" }}>Thumb color:</span>
+                <span style={{ marginRight: "0.25rem", }}>Thumb color:</span>
                 <HexAlphaColorPicker color={setting.thumbColor} onChange={(c) => setSetting({ ...setting, thumbColor: c })} />
               </div>
             </div>
 
             <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
               <div >
-                <span style={{ marginRight: "0.25rem", fontSize: "12px" }}>Thumb hover color:</span>
+                <span style={{ marginRight: "0.25rem", }}>Thumb hover color:</span>
                 <HexAlphaColorPicker color={setting.thumbHoverColor} onChange={(c) => setSetting({ ...setting, thumbHoverColor: c })} />
               </div>
             </div>
 
             <div></div>
           </div>
-          <div>Show horizontal scrollbar <input type="checkbox" checked={setting.showHorizontal} onChange={(e) => setSetting({ ...setting, showHorizontal: e.target.checked })} /> </div>
+          <div style={{ fontSize: "12px" }}>Show horizontal scrollbar <input type="checkbox" checked={setting.showHorizontal} onChange={(e) => setSetting({ ...setting, showHorizontal: e.target.checked })} /> </div>
 
 
         </div>
