@@ -5,6 +5,7 @@ import { clamp, cn, isTouchDevice } from "./Helper";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface ScrollbarStyles {
+    bar?: React.CSSProperties;
     track?: React.CSSProperties;
     thumb?: React.CSSProperties;
     thumbHover?: React.CSSProperties;
@@ -30,7 +31,7 @@ export interface ReactMobileScrollbarProps {
     /** animation options */
     animation?: ScrollbarAnimationOptions;
     /** track width for vertical bar (default: 8px) */
-    trackSize?: number;
+    barSize?: number;
     autoHide?: boolean;
     trackInset?: number;
 }
@@ -64,7 +65,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
     static defaultProps: Partial<ReactMobileScrollbarProps> = {
         vertical: true,
         horizontal: true,
-        trackSize: 8,
+        barSize: 8,
         autoHide: true,
         animation: {
             fadeOutDelay: 3000,
@@ -113,7 +114,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
             verticalThumbHovered: false,
             horizontalThumbHovered: false,
         };
-        let s = ss("");
+        let s = ss("111");
     }
 
     // ─── Native Scrollbar Hide/Restore ─────────────────────────────────────────
@@ -670,7 +671,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         const {
             styles,
             animation,
-            trackSize,
+            barSize = 12,
             vertical = true,
             horizontal = true,
             trackInset = 0,
@@ -698,32 +699,17 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 
         // ── Default styles ──
 
-        const defaultTrackStyle: React.CSSProperties = {
-            backgroundColor: "transparent",
-        };
-
-        const defaultThumbStyle: React.CSSProperties = {
-            backgroundColor: "#aaaaaa",
-        };
-
-        const defaultThumbHoverStyle: React.CSSProperties = {
-            backgroundColor: "#cccccc",
-        };
-
         // ── Merged styles ──
 
-        const trackStyle: React.CSSProperties = {
-            ...defaultTrackStyle,
-            ...(styles?.track ?? {}),
+        const barStyle: React.CSSProperties = {
+            ...(styles?.bar ?? {}),
         };
 
         const thumbBaseStyle: React.CSSProperties = {
-            ...defaultThumbStyle,
             ...(styles?.thumb ?? {}),
         };
 
         const thumbHoverStyle: React.CSSProperties = {
-            ...defaultThumbHoverStyle,
             ...(styles?.thumbHover ?? {}),
         };
 
@@ -732,36 +718,25 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         const containerStyle: React.CSSProperties = {
             opacity,
             transition: currentTransition,
-            /* Ensure touch gestures propagate */
-            touchAction: "auto",
             /* Accept clicks when showing */
             pointerEvents: opacity === 0 ? "none" : "auto",
         };
 
         // ── Vertical scrollbar ──
 
-        const verticalTrackStyle: React.CSSProperties = {
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: `${trackSize}px`,
-            height: showHorizontal ? `calc(100% - ${trackSize}px)` : "100%",
+        const verticalBarStyle: React.CSSProperties = {
+            width: `${barSize}px`,
+            height: showHorizontal ? `calc(100% - ${barSize}px)` : "100%",
             display: showVertical && vertical ? "block" : "none",
-            zIndex: 999,
-            boxSizing: "border-box",
-            ...trackStyle,
+            ...barStyle,
         };
 
         const thumbHeight = `${thumbHeightRatio * 100}%`;
         const thumbTop = `${thumbTopRatio * (100 - thumbHeightRatio * 100)}%`;
 
         const verticalThumbStyle: React.CSSProperties = {
-            position: "absolute",
-            width: "100%",
-            left: 0,
             height: thumbHeight,
             top: thumbTop,
-            boxSizing: "border-box",
             ...((verticalThumbHovered || this.isDraggingVertical)
                 ? { ...thumbBaseStyle, ...thumbHoverStyle }
                 : thumbBaseStyle),
@@ -769,25 +744,17 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 
         // ── Horizontal scrollbar ──
 
-        const horizontalTrackStyle: React.CSSProperties = {
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            height: `${trackSize}px`,
-            width: showVertical ? `calc(100% - ${trackSize}px)` : "100%",
+        const horizontalBarStyle: React.CSSProperties = {
+            height: `${barSize}px`,
+            width: showVertical ? `calc(100% - ${barSize}px)` : "100%",
             display: showHorizontal && horizontal ? "block" : "none",
-            zIndex: 999,
-            boxSizing: "border-box",
-            ...trackStyle,
+            ...barStyle,
         };
 
         const thumbWidth = `${thumbWidthRatio * 100}%`;
         const thumbLeft = `${thumbLeftRatio * (100 - thumbWidthRatio * 100)}%`;
 
         const horizontalThumbStyle: React.CSSProperties = {
-            position: "absolute",
-            height: "100%",
-            top: 0,
             width: thumbWidth,
             left: thumbLeft,
             boxSizing: "border-box",
@@ -802,16 +769,18 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
                 {vertical && (
                     <div
                         ref={this.verticalTrackWrapperRef}
-                        className={cn(this.defaultClassName, "vertical")}
-                        style={{ ...containerStyle, ...verticalTrackStyle }}
+                        className={cn(ss(this.defaultClassName), ss("vertical"))}
+                        style={{ ...containerStyle, ...verticalBarStyle }}
                     >
                         <div
                             ref={this.verticalTrackRef}
+                            className={cn(ss(this.defaultClassName + "-track"), ss("vertical"))}
                             style={{ position: "absolute", inset: trackInset + "px" }}
                             onClick={this.handleVerticalTrackClick}
                         >
                             <div
                                 ref={this.verticalThumbRef}
+                                className={cn(ss(this.defaultClassName + "-thumb"), ss("vertical"))}
                                 style={verticalThumbStyle}
                                 onMouseDown={this.handleVerticalThumbMouseDown}
                                 onMouseEnter={this.handleVerticalThumbMouseEnter}
@@ -825,16 +794,18 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
                 {horizontal && (
                     <div
                         ref={this.horizontalTrackWrapperRef}
-                        className={cn(this.defaultClassName, "horizontal")}
-                        style={{ ...containerStyle, ...horizontalTrackStyle }}
+                        className={cn(ss(this.defaultClassName), ss("horizontal"))}
+                        style={{ ...containerStyle, ...horizontalBarStyle }}
                     >
                         <div
                             ref={this.horizontalTrackRef}
+                            className={cn(ss(this.defaultClassName + "-track"), ss("horizontal"))}
                             style={{ position: "absolute", inset: trackInset + "px" }}
                             onClick={this.handleHorizontalTrackClick}
                         >
                             <div
                                 ref={this.horizontalThumbRef}
+                                className={cn(ss(this.defaultClassName + "-thumb"), ss("horizontal"))}
                                 style={horizontalThumbStyle}
                                 onMouseDown={this.handleHorizontalThumbMouseDown}
                                 onMouseEnter={this.handleHorizontalThumbMouseEnter}

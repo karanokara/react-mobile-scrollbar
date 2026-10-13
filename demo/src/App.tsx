@@ -12,10 +12,10 @@ import { HexAlphaColorPicker } from "react-colorful";
 function App() {
   const originalSetting = {
     autoHide: true,
-    trackSize: 12,
+    barSize: 12,
+    barPadding: 0,
     trackInset: 2,
-    trackPadding: 0,
-    trackColor: "#5e66b008",
+    barColor: "#5e66b010",
     thumbColor: "#bbb5d8",
     thumbHoverColor: "#948fd0",
     showHorizontal: false,
@@ -83,17 +83,32 @@ function App() {
 
 
               <div style={{ marginTop: "0.25rem" }}>
-                <span style={{ marginRight: "0.25rem" }}>Track size:</span>
+                <span style={{ marginRight: "0.25rem" }}>Bar size:</span>
                 <InputNumber
                   id="track-size-input"
                   wrapperStyle={{ width: "60px" }}
-                  value={setting.trackSize}
+                  value={setting.barSize}
                   min={0}
                   max={100}
                   step={1}
                   precision={0}
                   placeholder="Enter a number"
-                  onChange={(val) => setSetting({ ...setting, trackSize: val! })}
+                  onChange={(val) => setSetting({ ...setting, barSize: val! })}
+                />
+              </div>
+
+              <div style={{ marginTop: "0.25rem" }}>
+                <span style={{ marginRight: "0.25rem" }}>Bar padding:</span>
+                <InputNumber
+                  id="track-inset-input"
+                  wrapperStyle={{ width: "60px" }}
+                  value={setting.barPadding}
+                  min={0}
+                  max={100}
+                  step={1}
+                  precision={0}
+                  placeholder="Enter a number"
+                  onChange={(val) => setSetting({ ...setting, barPadding: val! })}
                 />
               </div>
 
@@ -112,29 +127,13 @@ function App() {
                 />
               </div>
 
-              <div style={{ marginTop: "0.25rem" }}>
-                <span style={{ marginRight: "0.25rem" }}>Track padding:</span>
-                <InputNumber
-                  id="track-inset-input"
-                  wrapperStyle={{ width: "60px" }}
-                  value={setting.trackPadding}
-                  min={0}
-                  max={100}
-                  step={1}
-                  precision={0}
-                  placeholder="Enter a number"
-                  onChange={(val) => setSetting({ ...setting, trackPadding: val! })}
-                />
-              </div>
-
-
             </div>
             <div style={{ display: "flex" }}>
 
               <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
                 <div >
-                  <span style={{ marginRight: "0.25rem", }}>Track color: {setting.trackColor}</span>
-                  <HexAlphaColorPicker color={setting.trackColor} onChange={(c) => setSetting({ ...setting, trackColor: c })} />
+                  <span style={{ marginRight: "0.25rem", }}>Bar color: {setting.barColor}</span>
+                  <HexAlphaColorPicker color={setting.barColor} onChange={(c) => setSetting({ ...setting, barColor: c })} />
                 </div>
               </div>
 
@@ -293,17 +292,17 @@ function App() {
               </div>
 
               {/* Scrollbar — must be LAST child so it renders on top */}
-              {wrapperRef.current && <ReactMobileScrollbar
+              {isMounted && <ReactMobileScrollbar
                 scrollWrapperRef={wrapperRef}
                 vertical={true}
                 horizontal={true}
                 autoHide={setting.autoHide}
-                trackSize={setting.trackSize}
+                barSize={setting.barSize}
                 trackInset={setting.trackInset}
                 styles={{
-                  track: {
-                    backgroundColor: setting.trackColor,
-                    padding: setting.trackPadding + "px"
+                  bar: {
+                    backgroundColor: setting.barColor,
+                    padding: setting.barPadding + "px"
                   },
                   thumb: {
                     backgroundColor: setting.thumbColor,

@@ -17,10 +17,10 @@
     "noEmit": true,
     // "declarationDir": "types",
     // Where to place the .d.ts files
-    "sourceMap": true,
+    "sourceMap": false,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "removeComments": true,
+    "removeComments": false,
     "declaration": true,
     "jsx": "react"
     // "react", this will use React.createElement()

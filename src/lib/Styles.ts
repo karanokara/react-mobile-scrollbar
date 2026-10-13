@@ -1,6 +1,6 @@
-import styles from "../css/index.scss";
+import styles from "../css/index.module.css";
 
-const prefix = "rssas";
+const prefix = "";
 
 /**
  * Get style classname
@@ -10,6 +10,6 @@ const prefix = "rssas";
  */
 export function ss(className: string) {
     // console.log("styles", styles);
-    let className1 = prefix + "-" + className;
+    let className1 = prefix ? prefix + "-" + className : className;
     return [className1, styles[className] as string];
 }
