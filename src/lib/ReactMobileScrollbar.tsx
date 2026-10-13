@@ -1,6 +1,6 @@
 import React, { createRef } from "react";
-import "../css/index.css";
-import packageJson from "../../package.json";
+import { ss } from "./Styles";
+// import packageJson from "../../package.json";
 import { clamp, cn, isTouchDevice } from "./Helper";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -58,7 +58,7 @@ interface ReactMobileScrollbarState {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarProps, ReactMobileScrollbarState> {
-    private defaultClassName = packageJson.name;
+    private defaultClassName = "react-mobile-scrollbar";//packageJson.name;
 
     private thumbActiveClassName = "scrollbar-thumb-active";
     static defaultProps: Partial<ReactMobileScrollbarProps> = {
@@ -113,6 +113,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
             verticalThumbHovered: false,
             horizontalThumbHovered: false,
         };
+        let s = ss("");
     }
 
     // ─── Native Scrollbar Hide/Restore ─────────────────────────────────────────

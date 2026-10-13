@@ -12,10 +12,10 @@ import { HexAlphaColorPicker } from "react-colorful";
 function App() {
   const originalSetting = {
     autoHide: true,
-    trackSize: 14,
+    trackSize: 12,
     trackInset: 2,
-    trackPadding: 5,
-    trackColor: "#5e66b00d",
+    trackPadding: 0,
+    trackColor: "#5e66b008",
     thumbColor: "#bbb5d8",
     thumbHoverColor: "#948fd0",
     showHorizontal: false,
@@ -60,9 +60,10 @@ function App() {
           </button> */}
         </section>
 
-        <div id="spacer" />
+        <div id="spacer" style={{ height: 0 }} />
 
-        <div style={{ padding: "0 1rem 1rem" }}>
+        <div style={{ padding: "1rem", background: "#fff" }}>
+
           <div style={{ display: "flex", alignItems: "center" }}>
             <h2 style={{ margin: "0 0 1rem 0" }}>Demo Settings</h2>
             <button
@@ -73,16 +74,19 @@ function App() {
             >Reset</button>
           </div>
 
-          <div style={{ display: "flex", fontSize: "12px" }}>
-            <div style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ fontSize: "12px" }}>
 
-              <div>Auto hide scrollbar <input type="checkbox" checked={setting.autoHide} onChange={(e) => setSetting({ ...setting, autoHide: e.target.checked })} /> </div>
+            <div>Auto hide scrollbar <input type="checkbox" checked={setting.autoHide} onChange={(e) => setSetting({ ...setting, autoHide: e.target.checked })} /> </div>
+            <div >Show horizontal scrollbar <input type="checkbox" checked={setting.showHorizontal} onChange={(e) => setSetting({ ...setting, showHorizontal: e.target.checked })} /> </div>
+
+            <div style={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
+
 
               <div style={{ marginTop: "0.25rem" }}>
                 <span style={{ marginRight: "0.25rem" }}>Track size:</span>
                 <InputNumber
                   id="track-size-input"
-                  wrapperStyle={{ width: "100px" }}
+                  wrapperStyle={{ width: "60px" }}
                   value={setting.trackSize}
                   min={0}
                   max={100}
@@ -97,7 +101,7 @@ function App() {
                 <span style={{ marginRight: "0.25rem" }}>Track inset:</span>
                 <InputNumber
                   id="track-inset-input"
-                  wrapperStyle={{ width: "100px" }}
+                  wrapperStyle={{ width: "60px" }}
                   value={setting.trackInset}
                   min={0}
                   max={100}
@@ -112,7 +116,7 @@ function App() {
                 <span style={{ marginRight: "0.25rem" }}>Track padding:</span>
                 <InputNumber
                   id="track-inset-input"
-                  wrapperStyle={{ width: "100px" }}
+                  wrapperStyle={{ width: "60px" }}
                   value={setting.trackPadding}
                   min={0}
                   max={100}
@@ -125,32 +129,34 @@ function App() {
 
 
             </div>
+            <div style={{ display: "flex" }}>
 
-            <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
-              <div >
-                <span style={{ marginRight: "0.25rem", }}>Track color:</span>
-                <HexAlphaColorPicker color={setting.trackColor} onChange={(c) => setSetting({ ...setting, trackColor: c })} />
+              <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
+                <div >
+                  <span style={{ marginRight: "0.25rem", }}>Track color: {setting.trackColor}</span>
+                  <HexAlphaColorPicker color={setting.trackColor} onChange={(c) => setSetting({ ...setting, trackColor: c })} />
+                </div>
               </div>
+
+              <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
+                <div >
+                  <span style={{ marginRight: "0.25rem", }}>Thumb color: {setting.thumbColor}</span>
+                  <HexAlphaColorPicker color={setting.thumbColor} onChange={(c) => setSetting({ ...setting, thumbColor: c })} />
+                </div>
+              </div>
+
+              <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
+                <div >
+                  <span style={{ marginRight: "0.25rem", }}>Thumb hover color: {setting.thumbHoverColor}</span>
+                  <HexAlphaColorPicker color={setting.thumbHoverColor} onChange={(c) => setSetting({ ...setting, thumbHoverColor: c })} />
+                </div>
+              </div>
+
+              <div></div>
             </div>
 
-            <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
-              <div >
-                <span style={{ marginRight: "0.25rem", }}>Thumb color:</span>
-                <HexAlphaColorPicker color={setting.thumbColor} onChange={(c) => setSetting({ ...setting, thumbColor: c })} />
-              </div>
-            </div>
 
-            <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
-              <div >
-                <span style={{ marginRight: "0.25rem", }}>Thumb hover color:</span>
-                <HexAlphaColorPicker color={setting.thumbHoverColor} onChange={(c) => setSetting({ ...setting, thumbHoverColor: c })} />
-              </div>
-            </div>
-
-            <div></div>
           </div>
-          <div style={{ fontSize: "12px" }}>Show horizontal scrollbar <input type="checkbox" checked={setting.showHorizontal} onChange={(e) => setSetting({ ...setting, showHorizontal: e.target.checked })} /> </div>
-
 
         </div>
 
@@ -164,7 +170,7 @@ function App() {
       <div id="social">
         <div id="spacer" style={{ border: "none" }} />
         <div className="ticks"></div>
-        <div id="spacer" />
+        <div id="spacer" style={{ height: 0 }} />
 
         <section>
 

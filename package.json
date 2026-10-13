@@ -3,14 +3,29 @@
   "version": "1.0.0",
   "private": false,
   "description": "A mobile-like scrollbar on desktop and then just use default scrollbar on touchable devices.",
-  "license": "MIT",
   "author": "karanokara <karawakara@gmail.com> (https://github.com/karanokara)",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/karanokara/react-mobile-scrollbar.git"
   },
   "homepage": "https://karanokara.github.io/react-mobile-scrollbar",
-  "main": "index.js",
+  "keywords": [
+    "react",
+    "scrollbar",
+    "auto disappear",
+    "mobile scrollbar",
+    "mobile",
+    "react scrollbar",
+    "custom scrollbar"
+  ],
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.module.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rm -rf ./dist && rollup -c",
     "start": "cd ./demo && npm start",
@@ -30,12 +45,27 @@
       "last 1 safari version"
     ]
   },
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
   "devDependencies": {
-    "@types/react": "^18.3.31",
-    "typescript": "^7.0.2"
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-terser": "^0.4.1",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@types/node": "^16.18.23",
+    "@types/react": "^18.0.34",
+    "@types/react-dom": "^18.0.11",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "rollup": "^4.64.5",
+    "rollup-plugin-import-css": "^3.2.1",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-scss": "^4.0.0",
+    "sass": "^1.105.1",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "react": ">=16.8",
+    "react-dom": ">=16.8"
   }
 }
