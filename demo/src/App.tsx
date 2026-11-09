@@ -16,9 +16,10 @@ function App() {
     barPadding: 0,
     trackInset: 2,
     barColor: "#5e66b010",
-    thumbColor: "#bbb5d8",
-    thumbHoverColor: "#948fd0",
+    thumbColor: "#bbb5d8ff",
+    thumbHoverColor: "#948fd0ff",
     showHorizontal: false,
+    enabled: true,
   };
   const [setting, setSetting] = useState(originalSetting);
 
@@ -76,7 +77,10 @@ function App() {
 
           <div style={{ fontSize: "12px" }}>
 
+            <div>Enabled <input type="checkbox" checked={setting.enabled} onChange={(e) => setSetting({ ...setting, enabled: e.target.checked })} /> </div>
+
             <div>Auto hide scrollbar <input type="checkbox" checked={setting.autoHide} onChange={(e) => setSetting({ ...setting, autoHide: e.target.checked })} /> </div>
+
             <div >Show horizontal scrollbar <input type="checkbox" checked={setting.showHorizontal} onChange={(e) => setSetting({ ...setting, showHorizontal: e.target.checked })} /> </div>
 
             <div style={{ display: "flex", flexDirection: "row", gap: "0.5rem" }}>
@@ -128,30 +132,29 @@ function App() {
               </div>
 
             </div>
-            <div style={{ display: "flex" }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
 
-              <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
+              <div style={{ marginLeft: "0rem", display: "flex", flexDirection: "column" }}>
                 <div >
-                  <span style={{ marginRight: "0.25rem", }}>Bar color: {setting.barColor}</span>
+                  <span style={{ marginRight: "0.25rem", }}>Bar: {setting.barColor}</span>
                   <HexAlphaColorPicker color={setting.barColor} onChange={(c) => setSetting({ ...setting, barColor: c })} />
                 </div>
               </div>
 
-              <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
+              <div style={{ marginLeft: "0.5rem", display: "flex", flexDirection: "column" }}>
                 <div >
-                  <span style={{ marginRight: "0.25rem", }}>Thumb color: {setting.thumbColor}</span>
+                  <span style={{ marginRight: "0.25rem", }}>Thumb: {setting.thumbColor}</span>
                   <HexAlphaColorPicker color={setting.thumbColor} onChange={(c) => setSetting({ ...setting, thumbColor: c })} />
                 </div>
               </div>
 
-              <div style={{ marginLeft: "1rem", display: "flex", flexDirection: "column" }}>
+              <div style={{ marginLeft: "0.5rem", display: "flex", flexDirection: "column" }}>
                 <div >
-                  <span style={{ marginRight: "0.25rem", }}>Thumb hover color: {setting.thumbHoverColor}</span>
+                  <span style={{ marginRight: "0.25rem", }}>Thumb hover: {setting.thumbHoverColor}</span>
                   <HexAlphaColorPicker color={setting.thumbHoverColor} onChange={(c) => setSetting({ ...setting, thumbHoverColor: c })} />
                 </div>
               </div>
 
-              <div></div>
             </div>
 
 
@@ -174,14 +177,15 @@ function App() {
         <section>
 
           <div
-            className="scrollable-container"
+            className="demo-container "
             style={{
               position: "relative",
               border: "1px solid #ccc",
+              maxWidth: "100%",
             }}
           >
             <div
-              className="scrollable-wrapper"
+              className="my-scrollable-wrapper react-mobile-scrollbar-container"
               ref={wrapperRef}
               style={{
                 height: "100%",
@@ -191,9 +195,11 @@ function App() {
                 boxSizing: "border-box",
               }}
             >
-              <div style={{
-                width: setting.showHorizontal ? "1000px" : undefined,
-              }}>
+              <div
+                className="my-scrollable-content"
+                style={{
+                  width: setting.showHorizontal ? "1000px" : undefined,
+                }}>
                 <div>
                   <svg className="icon" role="presentation" aria-hidden="true">
                     <use href="/icons.svg#documentation-icon"></use>
@@ -293,6 +299,7 @@ function App() {
 
               {/* Scrollbar — must be LAST child so it renders on top */}
               {isMounted && <ReactMobileScrollbar
+                enabled={setting.enabled}
                 scrollWrapperRef={wrapperRef}
                 vertical={true}
                 horizontal={true}
@@ -316,6 +323,7 @@ function App() {
                   fadeOutTransition: "opacity 0.6s ease",
                 }}
               />}
+
             </div>
 
           </div>

@@ -2,10 +2,10 @@
 
 
 /**
- * return class name
+ * Return contacted class names
  * @param string 
  */
-export function cn(...a: (null | undefined | string | string[] | boolean)[]) {
+export function cn(...a: (null | undefined | string | (string | null | undefined)[] | boolean)[]) {
     let re: string[] = [];
     for (let i = 0; i < a.length; ++i) {
         let b = a[i];

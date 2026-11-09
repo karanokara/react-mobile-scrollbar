@@ -2,6 +2,9 @@ import React, { createRef } from "react";
 import { ss } from "./Styles";
 // import packageJson from "../../package.json";
 import { clamp, cn, isTouchDevice } from "./Helper";
+
+const DefaultClassName = "react-mobile-scrollbar";//packageJson.name;
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface ScrollbarStyles {
@@ -21,10 +24,21 @@ export interface ScrollbarAnimationOptions {
 }
 
 export interface ReactMobileScrollbarProps {
+    /**
+     * Enable using this ReactMobileScrollbar
+     */
+    enabled?: boolean;
+    /**
+     * Wrapper of the scrollable wrapper (with "scroll" keyword at the end of the element from DevTools)
+     */
     scrollWrapperRef: React.RefObject<HTMLElement>;
-    /** enable vertical scrollbar (default: true) */
+    /** 
+     * enable vertical scrollbar (default: true) 
+     */
     vertical?: boolean;
-    /** enable horizontal scrollbar (default: true) */
+    /** 
+     * enable horizontal scrollbar (default: true) 
+     */
     horizontal?: boolean;
     /** custom styles */
     styles?: ScrollbarStyles;
@@ -32,7 +46,13 @@ export interface ReactMobileScrollbarProps {
     animation?: ScrollbarAnimationOptions;
     /** track width for vertical bar (default: 8px) */
     barSize?: number;
+    /**
+     * Auto hide the scrollbar
+     */
     autoHide?: boolean;
+    /**
+     * Inset style of the track
+     */
     trackInset?: number;
 }
 
@@ -59,7 +79,7 @@ interface ReactMobileScrollbarState {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarProps, ReactMobileScrollbarState> {
-    private defaultClassName = "react-mobile-scrollbar";//packageJson.name;
+    private uid = Math.random().toString(36).slice(2, 9);
 
     private thumbActiveClassName = "scrollbar-thumb-active";
     static defaultProps: Partial<ReactMobileScrollbarProps> = {
@@ -96,17 +116,18 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
     private mutationObserver: MutationObserver | null = null;
 
     // Touch device flag
-    private isTouch = false;
+    private isTouch = true;
 
     constructor(props: ReactMobileScrollbarProps) {
         super(props);
         this.state = {
             showVertical: false,
-            thumbHeightRatio: 1,
-            thumbTopRatio: 0,
-
             showHorizontal: false,
-            thumbWidthRatio: 1,
+
+            thumbHeightRatio: 0,
+            thumbWidthRatio: 0,
+
+            thumbTopRatio: 0,
             thumbLeftRatio: 0,
 
             opacity: props.autoHide ? 0 : 1,
@@ -114,46 +135,22 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
             verticalThumbHovered: false,
             horizontalThumbHovered: false,
         };
-        let s = ss("111");
+        // let s = ss("111");
     }
 
     // ─── Native Scrollbar Hide/Restore ─────────────────────────────────────────
 
-    private originalOverflow = "";
-
-    private styleTag: HTMLStyleElement | null = null;
-
     private hideNativeScrollbar(parent: HTMLElement) {
-        // Store original styles
-        this.originalOverflow = parent.style.overflow || "";
 
         // Make parent scrollable but hide native scrollbar via CSS trick
         // We inject a style that hides scrollbars for this element specifically
-        const uid = Math.random().toString(36).slice(2, 9);
-        parent.setAttribute(`data-${this.defaultClassName}`, uid);
-
-        const style = document.createElement("style");
-        style.textContent = `
-      \[data-${this.defaultClassName}="${uid}"\]::-webkit-scrollbar {
-        display: none;
-      }
-      \[data-${this.defaultClassName}="${uid}"\] {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        overflow: auto !important;
-      }
-    `;
-        document.head.appendChild(style);
-        this.styleTag = style;
+        parent.setAttribute(`data-${DefaultClassName}`, this.uid);
+        parent.classList.remove(`${DefaultClassName}-disabled`);
     }
 
     private restoreNativeScrollbar(parent: HTMLElement) {
-        parent.removeAttribute(`data-${this.defaultClassName}`);
-        if (this.styleTag) {
-            document.head.removeChild(this.styleTag);
-            this.styleTag = null;
-        }
-        parent.style.overflow = this.originalOverflow;
+        parent.removeAttribute(`data-${DefaultClassName}`);
+        parent.classList.add(`${DefaultClassName}-disabled`);
     }
 
     // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -194,6 +191,8 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         const scrollableHorizontal = scrollWidth - clientWidth;
         const thumbLeftRatio =
             scrollableHorizontal > 0 ? scrollLeft / scrollableHorizontal : 0;
+
+        console.log("recalculate...");
 
         this.setState({
             showVertical,
@@ -238,7 +237,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         }
     };
 
-    private handleWrapperWheel = (event: WheelEvent) => {
+    private handleWrapperWheel = (_event: WheelEvent) => {
         this.isAnimating = false;
         console.log("handleWrapperWheel");
     };
@@ -444,34 +443,39 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
      * 
      * @param event 
      */
-    private handleScrollbarWheel = (event: WheelEvent) => {
-        // Prevent the hovered element (or window) from scrolling
-        event.preventDefault();
+    // private handleScrollbarWheel = (event: WheelEvent) => {
+    //     // Prevent the hovered element (or window) from scrolling
+    //     event.preventDefault();
 
-        const scrollWrapper = this.getScrollWrapper();
-        if (!scrollWrapper) {
-            console.warn(this.defaultClassName + " couldn't find scroll wrapper element");
-            return;
-        }
-        // Pass the scroll delta directly to the target element
-        let resultTop = scrollWrapper.scrollTop + event.deltaY;
-        let resultLeft = scrollWrapper.scrollLeft += event.deltaX;
-        scrollWrapper.scrollTo({
-            top: resultTop,
-            left: resultLeft,
-            behavior: "auto",   // if using smooth, and scroll wheel fast, content will scroll slowly
-        });
-    };
+    //     const scrollWrapper = this.getScrollWrapper();
+    //     if (!scrollWrapper) {
+    //         console.warn(this.defaultClassName + " couldn't find scroll wrapper element");
+    //         return;
+    //     }
+    //     // Pass the scroll delta directly to the target element
+    //     let resultTop = scrollWrapper.scrollTop + event.deltaY;
+    //     let resultLeft = scrollWrapper.scrollLeft += event.deltaX;
+    //     scrollWrapper.scrollTo({
+    //         top: resultTop,
+    //         left: resultLeft,
+    //         behavior: "auto",   // if using smooth, and scroll wheel fast, content will scroll slowly
+    //     });
+    // };
 
     private targetScrollTop = 0;
     private targetScrollLeft = 0;
     private isAnimating = false;
 
+    /**
+     * calculate the exact momentum and apply it using a frame loop (requestAnimationFrame), which mimics native scrolling behavior seamlessly.
+     * 
+     * @returns 
+     */
     private updateScrollFromScrollbar = () => {
         if (!this.isAnimating) return;
         const scrollWrapper = this.getScrollWrapper();
         if (!scrollWrapper) {
-            console.warn(this.defaultClassName + " couldn't find scroll wrapper element");
+            console.warn(DefaultClassName + " couldn't find scroll wrapper element");
             return;
         }
         const currentTop = scrollWrapper.scrollTop;
@@ -496,6 +500,13 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         }
     };
 
+    /**
+     * when hover on scrollbar then use wheel to scroll, dispatch these scrolling to the scroll wrapper
+     * 
+     * This is a workaround to manually calculate the exact momentum and apply it using a frame loop (requestAnimationFrame), which mimics native scrolling behavior seamlessly.
+     * @param event 
+     * @returns 
+     */
     private handleScrollbarWheel2 = (event: WheelEvent) => {
         // Stop the source element (and page) from scrolling
         event.preventDefault();
@@ -504,7 +515,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 
         const scrollWrapper = this.getScrollWrapper();
         if (!scrollWrapper) {
-            console.warn(this.defaultClassName + " couldn't find scroll wrapper element");
+            console.warn(DefaultClassName + " couldn't find scroll wrapper element");
             return;
         }
 
@@ -554,20 +565,22 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 
     private setup() {
         this.isTouch = isTouchDevice();
-        if (this.isTouch) return; // Use native scrollbar on touch devices
-
         const scrollWrapper = this.getScrollWrapper();
+
+        if (this.isTouch) {
+            if (scrollWrapper)
+                this.restoreNativeScrollbar(scrollWrapper);
+
+            console.log(DefaultClassName + " is touch device");
+            return; // Use native scrollbar on touch devices
+        }
+
         if (!scrollWrapper) {
-            console.warn(this.defaultClassName + " couldn't find scroll wrapper element");
+            console.warn(DefaultClassName + " couldn't find scroll wrapper element");
             return;
         }
 
-        // Hide native scrollbar
-        this.hideNativeScrollbar(scrollWrapper);
-
-        // Initial calculation
-        this.recalculate();
-
+        // ------------------- Events --------------------
         // Attach scroll listener
         // passive=ture, the callback fn promise to NOT call preventDefault
         scrollWrapper.addEventListener("wheel", this.handleWrapperWheel, { passive: true });
@@ -581,6 +594,16 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         this.resizeObserver = new ResizeObserver(this.recalculate);
         this.resizeObserver.observe(scrollWrapper);
 
+        // Global mouse move/up for drag
+        window.addEventListener("mousemove", this.handleMouseMove);
+        window.addEventListener("mouseup", this.handleMouseUp);
+
+        // When scroll on scrollbar N
+        // ote: { passive: false } is required to allow event.preventDefault()
+        this.verticalTrackWrapperRef.current?.addEventListener('wheel', this.handleScrollbarWheel2, { passive: false });
+        this.horizontalTrackWrapperRef.current?.addEventListener('wheel', this.handleScrollbarWheel2, { passive: false });
+
+        // ------------------- Observers --------------------
         // Observe children for content changes
         Array.from(scrollWrapper.children).forEach((child) => {
             if (child !== this.verticalTrackRef.current &&
@@ -597,20 +620,17 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
             characterData: true,
         });
 
-        // Global mouse move/up for drag
-        window.addEventListener("mousemove", this.handleMouseMove);
-        window.addEventListener("mouseup", this.handleMouseUp);
+        // ------------------- Actions --------------------
+        // Hide native scrollbar
+        this.hideNativeScrollbar(scrollWrapper);
 
-
-        // Note: { passive: false } is required to allow event.preventDefault()
-        this.verticalTrackWrapperRef.current?.addEventListener('wheel', this.handleScrollbarWheel2, { passive: false });
-        this.horizontalTrackWrapperRef.current?.addEventListener('wheel', this.handleScrollbarWheel2, { passive: false });
+        // Initial calculation
+        this.recalculate();
     }
 
     private dispose() {
-        if (this.isTouch) return;
-
         const parent = this.getScrollWrapper();
+
         if (parent) {
             parent.removeEventListener("wheel", this.handleWrapperWheel);
             parent.removeEventListener("scroll", this.updateScroll);
@@ -643,8 +663,14 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
             this.handleMouseLeaveParent();
         }
 
+        if (prevProps.enabled !== this.props.enabled) {
+            this.dispose();
+
+            if (this.props.enabled)
+                this.setup();
+        }
         // wrapper mounted?
-        if (prevProps.scrollWrapperRef.current !== this.props.scrollWrapperRef.current) {
+        else if (prevProps.scrollWrapperRef.current !== this.props.scrollWrapperRef.current) {
             this.dispose();
             this.setup();
         }
@@ -652,7 +678,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 
     componentDidMount() {
         const parent = this.getScrollWrapper();
-        if (parent) {
+        if (parent || this.props.enabled) {
             this.setup();
         }
     }
@@ -665,8 +691,12 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
     // ─── Render ─────────────────────────────────────────────────────────────────
 
     render() {
-        // Don't render on touch devices
-        if (this.isTouch) return null;
+        // Don't render on touch devices or disabled by user
+        let {
+            enabled = true,
+        } = this.props;
+
+        if (this.isTouch || !enabled) return null;
 
         const {
             styles,
@@ -763,24 +793,26 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
                 : thumbBaseStyle),
         };
 
+        console.log(`${DefaultClassName} render...`);
+
         return (
             <>
                 {/* Vertical Scrollbar */}
                 {vertical && (
                     <div
                         ref={this.verticalTrackWrapperRef}
-                        className={cn(ss(this.defaultClassName), ss("vertical"))}
+                        className={cn(ss(DefaultClassName), ss("vertical"))}
                         style={{ ...containerStyle, ...verticalBarStyle }}
                     >
                         <div
                             ref={this.verticalTrackRef}
-                            className={cn(ss(this.defaultClassName + "-track"), ss("vertical"))}
+                            className={cn(ss(DefaultClassName + "-track"), ss("vertical"))}
                             style={{ position: "absolute", inset: trackInset + "px" }}
                             onClick={this.handleVerticalTrackClick}
                         >
                             <div
                                 ref={this.verticalThumbRef}
-                                className={cn(ss(this.defaultClassName + "-thumb"), ss("vertical"))}
+                                className={cn(ss(DefaultClassName + "-thumb"), ss("vertical"))}
                                 style={verticalThumbStyle}
                                 onMouseDown={this.handleVerticalThumbMouseDown}
                                 onMouseEnter={this.handleVerticalThumbMouseEnter}
@@ -794,18 +826,18 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
                 {horizontal && (
                     <div
                         ref={this.horizontalTrackWrapperRef}
-                        className={cn(ss(this.defaultClassName), ss("horizontal"))}
+                        className={cn(ss(DefaultClassName), ss("horizontal"))}
                         style={{ ...containerStyle, ...horizontalBarStyle }}
                     >
                         <div
                             ref={this.horizontalTrackRef}
-                            className={cn(ss(this.defaultClassName + "-track"), ss("horizontal"))}
+                            className={cn(ss(DefaultClassName + "-track"), ss("horizontal"))}
                             style={{ position: "absolute", inset: trackInset + "px" }}
                             onClick={this.handleHorizontalTrackClick}
                         >
                             <div
                                 ref={this.horizontalThumbRef}
-                                className={cn(ss(this.defaultClassName + "-thumb"), ss("horizontal"))}
+                                className={cn(ss(DefaultClassName + "-thumb"), ss("horizontal"))}
                                 style={horizontalThumbStyle}
                                 onMouseDown={this.handleHorizontalThumbMouseDown}
                                 onMouseEnter={this.handleHorizontalThumbMouseEnter}
@@ -818,3 +850,24 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         );
     }
 }
+
+/**
+ * Here inject a style that hides scrollbars for the container
+ */
+(function addHelperStyle() {
+    const style = document.createElement("style");
+    style.textContent = `
+    .${DefaultClassName}-container:not(.${DefaultClassName}-disabled),
+    [data-${DefaultClassName}]  {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        overflow: auto !important;
+    }
+    .${DefaultClassName}-container:not(.${DefaultClassName}-disabled)::-webkit-scrollbar,
+    [data-${DefaultClassName}]::-webkit-scrollbar {
+        display: none;
+    }
+    `;
+    document.head.appendChild(style);
+})();
+
