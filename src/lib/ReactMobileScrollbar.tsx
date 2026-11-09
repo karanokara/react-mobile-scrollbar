@@ -192,7 +192,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         const thumbLeftRatio =
             scrollableHorizontal > 0 ? scrollLeft / scrollableHorizontal : 0;
 
-        console.log("recalculate...");
+        // console.log("recalculate...");
 
         this.setState({
             showVertical,
@@ -229,7 +229,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 
         this.setState({ thumbTopRatio, thumbLeftRatio });
 
-        console.log("updateScroll", thumbTopRatio, thumbLeftRatio);
+        // console.log("updateScroll", thumbTopRatio, thumbLeftRatio);
 
         if (this.state.opacity === 0) {
             this.handleMouseEnterParent();
@@ -237,9 +237,10 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         }
     };
 
+    // whne wrapper is scrolling using wheel, don't let the updateScrollFromScrollbar to move by momentum
     private handleWrapperWheel = (_event: WheelEvent) => {
         this.isAnimating = false;
-        console.log("handleWrapperWheel");
+        // console.log("handleWrapperWheel");
     };
 
     // ─── Mutation Handler ───────────────────────────────────────────────────────
@@ -272,7 +273,8 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
                 clearTimeout(this.fadeOutTimer);
                 this.fadeOutTimer = null;
             }
-            this.setState({ opacity: 1 });
+
+            if (this.state.opacity !== 1) this.setState({ opacity: 1 });
         }
     };
 
@@ -571,7 +573,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
             if (scrollWrapper)
                 this.restoreNativeScrollbar(scrollWrapper);
 
-            console.log(DefaultClassName + " is touch device");
+            // console.log(DefaultClassName + " is touch device");
             return; // Use native scrollbar on touch devices
         }
 
@@ -793,7 +795,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
                 : thumbBaseStyle),
         };
 
-        console.log(`${DefaultClassName} render...`);
+        // console.log(`${DefaultClassName} render...`);
 
         return (
             <>

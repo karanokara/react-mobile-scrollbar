@@ -1,7 +1,7 @@
 {
   "name": "react-mobile-scrollbar-demo",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.2",
   "type": "module",
   "homepage": "https://karanokara.github.io/react-mobile-scrollbar",
   "scripts": {
