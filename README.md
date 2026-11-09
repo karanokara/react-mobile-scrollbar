@@ -25,7 +25,6 @@ It offers native-like scrolling momentum, auto-hide behavior, and deep styling f
 npm install react-mobile-scrollbar
 # or
 yarn add react-mobile-scrollbar
-
 ```
 
 ## Usage Example
