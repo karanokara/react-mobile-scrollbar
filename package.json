@@ -1,13 +1,13 @@
 {
   "name": "react-mobile-scrollbar",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "A mobile-like scrollbar on desktop and then just use default scrollbar on touchable devices.",
   "author": "karanokara <karawakara@gmail.com> (https://github.com/karanokara)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/karanokara/react-mobile-scrollbar.git"
+    "url": "git+https://github.com/karanokara/react-mobile-scrollbar.git"
   },
   "homepage": "https://karanokara.github.io/react-mobile-scrollbar",
   "keywords": [

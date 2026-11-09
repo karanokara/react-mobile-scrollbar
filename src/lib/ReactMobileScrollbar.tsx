@@ -31,7 +31,7 @@ export interface ReactMobileScrollbarProps {
     /**
      * Wrapper of the scrollable wrapper (with "scroll" keyword at the end of the element from DevTools)
      */
-    scrollWrapperRef: React.RefObject<HTMLElement>;
+    scrollWrapperRef: React.RefObject<HTMLElement | null>;
     /** 
      * enable vertical scrollbar (default: true) 
      */

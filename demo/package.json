@@ -16,7 +16,8 @@
   "dependencies": {
     "react": "^19.2.8",
     "react-colorful": "^5.8.1",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-mobile-scrollbar": "^1.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
