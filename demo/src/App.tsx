@@ -4,8 +4,8 @@ import viteLogo from './assets/vite.svg';
 import heroImg from './assets/hero.png';
 import './css/app.css';
 import { Global } from "./Global";
-import { ReactMobileScrollbar } from "../../src/index";
-// import { ReactMobileScrollbar } from "react-mobile-scrollbar";
+// import { ReactMobileScrollbar } from "../../src/index";
+import { ReactMobileScrollbar } from "react-mobile-scrollbar";
 import { InputNumber } from "./InputNumber";
 import { HexAlphaColorPicker } from "react-colorful";
 

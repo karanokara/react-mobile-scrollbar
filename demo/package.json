@@ -1,7 +1,7 @@
 {
   "name": "react-mobile-scrollbar-demo",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "homepage": "https://karanokara.github.io/react-mobile-scrollbar",
   "scripts": {
@@ -17,7 +17,7 @@
     "react": "^19.2.8",
     "react-colorful": "^5.8.1",
     "react-dom": "^19.2.8",
-    "react-mobile-scrollbar": "^1.0.1"
+    "react-mobile-scrollbar": "^1.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
