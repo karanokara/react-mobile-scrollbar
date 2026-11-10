@@ -39,10 +39,14 @@ export default function App() {
   const scrollWrapperRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div style={{ position: "relative", width: "400px", height: "300px", border: "1px solid #ccc", }}>
+    <div 
+      className="demo-container"
+      style={{ position: "relative", width: "400px", height: "300px", border: "1px solid #ccc", }}
+    >
+
       {/* Scrollable Container */}
       <div
-        className="scroll-wrapper react-mobile-scrollbar-container" // add this class 'react-mobile-scrollbar-container'
+        className="scroll-container react-mobile-scrollbar-scroll-container" // add this class 'react-mobile-scrollbar-scroll-container'
         ref={scrollWrapperRef}
         style={{
           width: "100%",
@@ -67,6 +71,7 @@ export default function App() {
           track: { background: "transparent" },
         }}
       />
+      
     </div>
   );
 }

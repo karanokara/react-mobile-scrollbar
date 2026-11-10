@@ -4,8 +4,8 @@ import viteLogo from './assets/vite.svg';
 import heroImg from './assets/hero.png';
 import './css/app.css';
 import { Global } from "./Global";
-// import { ReactMobileScrollbar } from "../../src/index";
-import { ReactMobileScrollbar } from "react-mobile-scrollbar";
+import { ReactMobileScrollbar } from "../../src/index";
+// import { ReactMobileScrollbar } from "react-mobile-scrollbar";
 import { InputNumber } from "./InputNumber";
 import { HexAlphaColorPicker } from "react-colorful";
 
@@ -175,21 +175,28 @@ function App() {
         <div className="ticks"></div>
         <div id="spacer" style={{ height: 0 }} />
 
-        <section>
+        <section style={{
+          display: "flex",
+          alignItems: "center",
+        }}>
 
           <div
             className="demo-container "
             style={{
+              display: "flex",
+              maxWidth: "100%",
+              // alignItems: "center",
               position: "relative",
               border: "1px solid #ccc",
-              maxWidth: "100%",
+              maxHeight: "600px",
+              height: "100%",
             }}
           >
             <div
-              className="my-scrollable-wrapper react-mobile-scrollbar-container"
+              className="my-scrollable-wrapper react-mobile-scrollbar-scroll-container"
               ref={wrapperRef}
               style={{
-                height: "100%",
+                // height: "100%",
                 maxWidth: "100%",
                 padding: "1rem",
                 overflow: "auto",       // ← will be managed internally
@@ -297,35 +304,34 @@ function App() {
                   <p style={{ textIndent: "40px", marginBottom: "0.5rem" }}>Donec auctor vitae ex id semper. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque maximus tristique ipsum, vitae sollicitudin enim blandit a. In tempor pharetra diam, eget rhoncus ante egestas vel. Maecenas sit amet finibus nibh, sed pulvinar augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Nulla sit amet volutpat nisl, ut bibendum leo. Vestibulum ante justo, porta sed elit ut, luctus dictum ipsum.</p>
                 </div>
               </div>
-
-              {/* Scrollbar — must be LAST child so it renders on top */}
-              {isMounted && <ReactMobileScrollbar
-                enabled={setting.enabled}
-                scrollWrapperRef={wrapperRef}
-                vertical={true}
-                horizontal={true}
-                autoHide={setting.autoHide}
-                barSize={setting.barSize}
-                trackInset={setting.trackInset}
-                styles={{
-                  bar: {
-                    backgroundColor: setting.barColor,
-                    padding: setting.barPadding + "px"
-                  },
-                  thumb: {
-                    backgroundColor: setting.thumbColor,
-                    borderRadius: "50px"
-                  },
-                  thumbHover: { backgroundColor: setting.thumbHoverColor },
-                }}
-                animation={{
-                  fadeOutDelay: 3000,
-                  fadeInTransition: "opacity 0.3s ease",
-                  fadeOutTransition: "opacity 0.6s ease",
-                }}
-              />}
-
             </div>
+
+            {/* Scrollbar — must be LAST child so it renders on top */}
+            {isMounted && <ReactMobileScrollbar
+              enabled={setting.enabled}
+              scrollWrapperRef={wrapperRef}
+              vertical={true}
+              horizontal={true}
+              autoHide={setting.autoHide}
+              barSize={setting.barSize}
+              trackInset={setting.trackInset}
+              styles={{
+                bar: {
+                  backgroundColor: setting.barColor,
+                  padding: setting.barPadding + "px"
+                },
+                thumb: {
+                  backgroundColor: setting.thumbColor,
+                  borderRadius: "50px"
+                },
+                thumbHover: { backgroundColor: setting.thumbHoverColor },
+              }}
+              animation={{
+                fadeOutDelay: 3000,
+                fadeInTransition: "opacity 0.3s ease",
+                fadeOutTransition: "opacity 0.6s ease",
+              }}
+            />}
 
           </div>
         </section>

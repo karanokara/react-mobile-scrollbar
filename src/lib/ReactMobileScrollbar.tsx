@@ -116,7 +116,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
     private mutationObserver: MutationObserver | null = null;
 
     // Touch device flag
-    private isTouch = true;
+    private isTouch = isTouchDevice();
 
     constructor(props: ReactMobileScrollbarProps) {
         super(props);
@@ -488,14 +488,27 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 
         const nextTop = currentTop + (this.targetScrollTop - currentTop) * ease;
         const nextLeft = currentLeft + (this.targetScrollLeft - currentLeft) * ease;
+        const diffTop = Math.abs(this.targetScrollTop - nextTop);
+        const diffLeft = Math.abs(this.targetScrollLeft - nextLeft);
+        const isDown = (this.targetScrollTop - currentTop) > 0;
+        const isRight = (this.targetScrollLeft - currentLeft) > 0;
 
-        scrollWrapper.scrollTop = nextTop;
-        scrollWrapper.scrollLeft = nextLeft;
+        scrollWrapper.scrollTop = (1 < diffTop && diffTop < 2)
+            ? isDown
+                ? Math.ceil(nextTop)
+                : Math.floor(nextTop)
+            : nextTop;
+        scrollWrapper.scrollLeft = (1 < diffLeft && diffLeft < 2)
+            ? isRight
+                ? Math.ceil(nextLeft)
+                : Math.floor(nextLeft)
+            : nextLeft;
 
-        console.warn("updateScrollFromScrollbar targetTop", this.targetScrollTop, "nextTop", nextTop);
+
+        // console.warn("updateScrollFromScrollbar targetTop", this.targetScrollTop, "nextTop", nextTop);
 
         // Continue the animation loop until we reach the target position
-        if (Math.abs(this.targetScrollTop - nextTop) > 1 || Math.abs(this.targetScrollLeft - nextLeft) > 1) {
+        if (diffTop > 1 || diffLeft > 1) {
             requestAnimationFrame(this.updateScrollFromScrollbar);
         } else {
             this.isAnimating = false;
@@ -538,7 +551,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         this.targetScrollTop = Math.max(0, Math.min(this.targetScrollTop, maxScrollTop));
         this.targetScrollLeft = Math.max(0, Math.min(this.targetScrollLeft, maxScrollLeft));
 
-        console.warn("handleScrollbarWheel2", this.targetScrollTop);
+        // console.warn("handleScrollbarWheel2", this.targetScrollTop);
 
         // Kick off the animation loop if it isn't already running
         if (!this.isAnimating) {
@@ -566,16 +579,7 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
     };
 
     private setup() {
-        this.isTouch = isTouchDevice();
         const scrollWrapper = this.getScrollWrapper();
-
-        if (this.isTouch) {
-            if (scrollWrapper)
-                this.restoreNativeScrollbar(scrollWrapper);
-
-            // console.log(DefaultClassName + " is touch device");
-            return; // Use native scrollbar on touch devices
-        }
 
         if (!scrollWrapper) {
             console.warn(DefaultClassName + " couldn't find scroll wrapper element");
@@ -668,19 +672,29 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
         if (prevProps.enabled !== this.props.enabled) {
             this.dispose();
 
-            if (this.props.enabled)
+            if (!this.isTouch && this.props.enabled)
                 this.setup();
         }
         // wrapper mounted?
         else if (prevProps.scrollWrapperRef.current !== this.props.scrollWrapperRef.current) {
             this.dispose();
-            this.setup();
+
+            if (!this.isTouch && this.props.enabled)
+                this.setup();
         }
     }
 
     componentDidMount() {
-        const parent = this.getScrollWrapper();
-        if (parent || this.props.enabled) {
+        const scrollWrapper = this.getScrollWrapper();
+
+        if (this.isTouch) {
+            if (scrollWrapper)
+                this.restoreNativeScrollbar(scrollWrapper);
+
+            // console.log(DefaultClassName + " is touch device");
+            return; // Use native scrollbar on touch devices
+        }
+        else if (scrollWrapper || this.props.enabled) {
             this.setup();
         }
     }
@@ -859,15 +873,18 @@ export class ReactMobileScrollbar extends React.Component<ReactMobileScrollbarPr
 (function addHelperStyle() {
     const style = document.createElement("style");
     style.textContent = `
-    .${DefaultClassName}-container:not(.${DefaultClassName}-disabled),
-    [data-${DefaultClassName}]  {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        overflow: auto !important;
-    }
-    .${DefaultClassName}-container:not(.${DefaultClassName}-disabled)::-webkit-scrollbar,
-    [data-${DefaultClassName}]::-webkit-scrollbar {
-        display: none;
+    @media (hover: hover) and (pointer: fine) {
+        /* Traditional mouse/trackpad device */
+        .${DefaultClassName}-scroll-container:not(.${DefaultClassName}-disabled),
+        [data-${DefaultClassName}]  {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            overflow: auto !important;
+        }
+        .${DefaultClassName}-scroll-container:not(.${DefaultClassName}-disabled)::-webkit-scrollbar,
+        [data-${DefaultClassName}]::-webkit-scrollbar {
+            display: none;
+        }
     }
     `;
     document.head.appendChild(style);
